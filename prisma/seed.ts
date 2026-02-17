@@ -1,9 +1,62 @@
-import { PrismaClient, UnitStatus } from '@prisma/client';
+import { PrismaClient, UnitStatus, Role } from '@prisma/client';
+import { hash } from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
+
+  // Create demo users
+  const [adminPassword, marketingPassword, buyerPassword] = await Promise.all([
+    hash('admin123', 10),
+    hash('marketing123', 10),
+    hash('buyer123', 10),
+  ]);
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@pinturumah.test' },
+    update: {},
+    create: {
+      email: 'admin@pinturumah.test',
+      password: adminPassword,
+      fullName: 'Admin Pintu Rumah',
+      phone: '080000000001',
+      role: Role.ADMIN,
+      isVerified: true,
+    },
+  });
+
+  const marketingUser = await prisma.user.upsert({
+    where: { email: 'marketing@pinturumah.test' },
+    update: {},
+    create: {
+      email: 'marketing@pinturumah.test',
+      password: marketingPassword,
+      fullName: 'Marketing Demo',
+      phone: '080000000002',
+      role: Role.MARKETING,
+      isVerified: true,
+    },
+  });
+
+  const buyerUser = await prisma.user.upsert({
+    where: { email: 'buyer@pinturumah.test' },
+    update: {},
+    create: {
+      email: 'buyer@pinturumah.test',
+      password: buyerPassword,
+      fullName: 'Buyer Demo',
+      phone: '080000000003',
+      role: Role.BUYER,
+      isVerified: true,
+    },
+  });
+
+  console.log('✅ Demo users created:', {
+    admin: adminUser.email,
+    marketing: marketingUser.email,
+    buyer: buyerUser.email,
+  });
 
   // Create Projects
   const project1 = await prisma.project.upsert({

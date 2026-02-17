@@ -31,6 +31,7 @@ export class AuthService {
         password: passwordHash,
         fullName: dto.fullName,
         phone: dto.phone,
+        role: dto.role, // Will use default BUYER if not provided (from Prisma schema)
       },
     });
 

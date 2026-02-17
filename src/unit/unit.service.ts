@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UnitGateway } from './unit.gateway';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 import { UnitQueryDto } from './dto/unit-query.dto';
@@ -12,7 +13,10 @@ import { Unit, UnitStatus } from '@prisma/client';
 
 @Injectable()
 export class UnitService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private unitGateway: UnitGateway,
+  ) {}
 
   async create(dto: CreateUnitDto): Promise<Unit> {
     // Check if project exists
@@ -38,7 +42,7 @@ export class UnitService {
       );
     }
 
-    return this.prisma.unit.create({
+    const unit = await this.prisma.unit.create({
       data: dto,
       include: {
         project: {
@@ -49,6 +53,9 @@ export class UnitService {
         },
       },
     });
+
+    this.unitGateway.broadcastUnitUpdate(unit);
+    return unit;
   }
 
   async findAll(query: UnitQueryDto): Promise<PaginatedResult<Unit>> {
@@ -131,7 +138,7 @@ export class UnitService {
   async update(id: string, dto: UpdateUnitDto): Promise<Unit> {
     await this.findOne(id);
 
-    return this.prisma.unit.update({
+    const unit = await this.prisma.unit.update({
       where: { id },
       data: dto,
       include: {
@@ -143,12 +150,15 @@ export class UnitService {
         },
       },
     });
+
+    this.unitGateway.broadcastUnitUpdate(unit);
+    return unit;
   }
 
   async updateStatus(id: string, status: UnitStatus): Promise<Unit> {
     await this.findOne(id);
 
-    return this.prisma.unit.update({
+    const unit = await this.prisma.unit.update({
       where: { id },
       data: { status },
       include: {
@@ -160,6 +170,9 @@ export class UnitService {
         },
       },
     });
+
+    this.unitGateway.broadcastUnitUpdate(unit);
+    return unit;
   }
 
   async remove(id: string): Promise<void> {
