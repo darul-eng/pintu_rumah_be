@@ -12,3 +12,9 @@
 ## 3. e-KYC & Security
 - **Local Validation**: Face detection menggunakan `google_ml_kit` di sisi client.
 - **Security**: Data nomor telepon buyer disensor (masked) di API sebelum di-unlock melalui sistem Wallet.
+
+## 4. On-Demand & Bulk Mapping Logic (Coordinate-Based)
+- **Mechanism**: Menggantikan SVG parsing dengan **Coordinate Pinning**. Sistem menyimpan koordinat (X, Y) relatif terhadap ukuran gambar.
+- **On-Transaction Pinning**: Saat marketing merubah status unit menjadi 'SOLD' atau 'BOOKED', jika unit tersebut belum memiliki koordinat, aplikasi akan mewajibkan marketing untuk mengetuk posisi unit tersebut pada gambar siteplan sebagai langkah terakhir.
+- **Bulk Setup Mode**: Admin/Marketing baru dapat masuk ke "Setup Mode" untuk menandai banyak unit sekaligus dalam satu sesi (Tap gambar -> Pilih No. Blok -> Simpan -> Ulangi).
+- **Storage**: Koordinat disimpan dalam tabel `Unit` sebagai `posX (Float)` dan `posY (Float)`.

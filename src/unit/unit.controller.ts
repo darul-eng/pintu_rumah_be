@@ -85,6 +85,22 @@ export class UnitController {
     return this.unitService.updateStatus(id, status);
   }
 
+  @Patch(':id/position')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MARKETING', 'ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Update unit coordinates for sitemap (normalized 0.0 - 1.0, Marketing/Admin)',
+  })
+  @ApiResponse({ status: 200, description: 'Unit position updated' })
+  updatePosition(
+    @Param('id') id: string,
+    @Body() dto: import('./dto/update-unit-position.dto').UpdateUnitPositionDto,
+  ) {
+    return this.unitService.updatePosition(id, dto);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')

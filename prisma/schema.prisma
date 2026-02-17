@@ -57,6 +57,10 @@ model Unit {
   price       Float
   type        String
   status      UnitStatus @default(AVAILABLE)
+  /// Normalized X coordinate on sitemap image (0.0 - 1.0)
+  posX        Float?
+  /// Normalized Y coordinate on sitemap image (0.0 - 1.0)
+  posY        Float?
   leads       Lead[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

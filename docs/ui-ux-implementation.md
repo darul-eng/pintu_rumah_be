@@ -15,3 +15,11 @@
 - **Sitemap**: Menggunakan `InteractiveViewer` untuk pinch-to-zoom (max 5.0x).
 - **Animations**: `flutter_animate` untuk transisi halus saat status unit berubah warna.
 - **Feedback**: Shimmer effect sebagai skeleton loading saat fetching data dari NestJS.
+
+## 4. User Interaction: The Pinning Flow
+- **Post-Transaction Trigger**: Setelah klik "Konfirmasi Terjual", muncul overlay: *"Ketuk lokasi unit ini pada gambar untuk menyelesaikan"*.
+- **Visual Marker**: Titik (Dot) yang muncul di atas gambar menggunakan warna dinamis:
+  - Kosong/Hijau: Available
+  - Kuning: Booked
+  - Merah: Sold
+- **Interactive Map**: User (Buyer) dapat mengetuk dot tersebut untuk melihat detail unit. Jika unit belum ditandai oleh marketing, maka unit tersebut belum muncul sebagai titik interaktif di denah Buyer.

@@ -210,6 +210,8 @@ export class UnitService {
         status: true,
         type: true,
         price: true,
+        posX: true,
+        posY: true,
       },
     });
 
@@ -217,6 +219,32 @@ export class UnitService {
       ...unit,
       color: this.getStatusColor(unit.status),
     }));
+  }
+
+  async updatePosition(
+    id: string,
+    coords: { posX: number; posY: number },
+  ): Promise<Unit> {
+    await this.findOne(id);
+
+    const unit = await this.prisma.unit.update({
+      where: { id },
+      data: {
+        posX: coords.posX,
+        posY: coords.posY,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    this.unitGateway.broadcastUnitUpdate(unit);
+    return unit;
   }
 
   private getStatusColor(status: UnitStatus): string {

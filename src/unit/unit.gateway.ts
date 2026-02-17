@@ -10,6 +10,8 @@ interface SitemapUnitPayload {
   type: string;
   price: number;
   color: string;
+  posX?: number | null;
+  posY?: number | null;
 }
 
 @WebSocketGateway({
@@ -39,6 +41,8 @@ export class UnitGateway {
     status: UnitStatus;
     type: string;
     price: number;
+    posX?: number | null;
+    posY?: number | null;
   }): void {
     const payload: SitemapUnitPayload = {
       id: unit.id,
@@ -48,6 +52,8 @@ export class UnitGateway {
       type: unit.type,
       price: unit.price,
       color: this.getStatusColor(unit.status),
+      posX: unit.posX ?? null,
+      posY: unit.posY ?? null,
     };
 
     // Broadcast hanya ke client yang sedang melihat proyek terkait

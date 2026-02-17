@@ -8,7 +8,9 @@ import { Project } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+  ) {}
 
   async create(dto: CreateProjectDto): Promise<Project> {
     return this.prisma.project.create({
@@ -105,5 +107,30 @@ export class ProjectService {
       },
       { available: 0, booked: 0, sold: 0 } as Record<string, number>,
     );
+  }
+
+  /**
+   * Upload sitemap base image (JPG/PNG) for a project.
+   *
+   * Per roadmap, sitemap rendering is now done via coordinate overlay
+   * on top of a static image. We no longer parse or manipulate SVG.
+   */
+  async uploadSiteplanImage(
+    id: string,
+    fileBuffer: Buffer,
+  ): Promise<Project> {
+    await this.findOne(id);
+
+    const base64 = fileBuffer.toString('base64');
+
+    return this.prisma.project.update({
+      where: { id },
+      data: { svgSiteplan: base64 },
+      include: {
+        units: {
+          orderBy: { blockNumber: 'asc' },
+        },
+      },
+    });
   }
 }

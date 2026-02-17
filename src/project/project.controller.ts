@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,10 +8,15 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -68,6 +74,64 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project updated successfully' })
   update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
     return this.projectService.update(id, dto);
+  }
+
+  @Patch(':id/siteplan-image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MARKETING', 'ADMIN')
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload sitemap base image (JPG/PNG) for a project',
+    description:
+      'Upload a static image (JPG/PNG) to be used as the sitemap background. Units are rendered as coordinate-based overlays on top of this image.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Sitemap image file (JPG/PNG)',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Sitemap image uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid image file' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async uploadSiteplanImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Sitemap image file is required');
+    }
+
+    if (
+      !file.mimetype.startsWith('image/') ||
+      (!file.originalname.toLowerCase().endsWith('.jpg') &&
+        !file.originalname.toLowerCase().endsWith('.jpeg') &&
+        !file.originalname.toLowerCase().endsWith('.png'))
+    ) {
+      throw new BadRequestException(
+        'Invalid file type. Only JPG and PNG images are allowed.',
+      );
+    }
+
+    const project = await this.projectService.uploadSiteplanImage(
+      id,
+      file.buffer,
+    );
+
+    return {
+      message: 'Sitemap image uploaded successfully',
+      projectId: id,
+      project,
+    };
   }
 
   @Delete(':id')
