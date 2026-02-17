@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  BUYER
+  MARKETING
+  ADMIN
+}
+
+enum UnitStatus {
+  AVAILABLE
+  BOOKED
+  SOLD
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  fullName        String
+  phone           String?
+  role            Role     @default(BUYER)
+  isVerified      Boolean  @default(false)
+  idCardUrl       String?
+  selfieUrl       String?
+  officeIdCardUrl String?
+  companyName     String?
+
+  wallet          Wallet?
+  leadsOwned      Lead[]   @relation("MarketingLeads")
+  leadsCreated    Lead[]   @relation("BuyerLeads")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  location    String
+  svgSiteplan String?
+  units       Unit[]
+  createdAt   DateTime @default(now())
+}
+
+model Unit {
+  id          String     @id @default(uuid())
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id])
+  blockNumber String
+  price       Float
+  type        String
+  status      UnitStatus @default(AVAILABLE)
+  leads       Lead[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Wallet {
+  id           String              @id @default(uuid())
+  userId       String              @unique
+  user         User                @relation(fields: [userId], references: [id])
+  balance      Float               @default(0)
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String   @id @default(uuid())
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+  amount      Float
+  type        String
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model Lead {
+  id         String   @id @default(uuid())
+  buyerId    String
+  buyer      User     @relation("BuyerLeads", fields: [buyerId], references: [id])
+  unitId     String
+  unit       Unit     @relation(fields: [unitId], references: [id])
+  marketingId String?
+  marketing  User?    @relation("MarketingLeads", fields: [marketingId], references: [id])
+  isUnlocked Boolean  @default(false)
+  buyerScore Int      @default(0)
+  createdAt  DateTime @default(now())
+}
