@@ -123,6 +123,15 @@ export class ProjectService {
 
     const base64 = fileBuffer.toString('base64');
 
+    // Saat sitemap image diganti, semua koordinat unit harus direset
+    await this.prisma.unit.updateMany({
+      where: { projectId: id },
+      data: {
+        posX: null,
+        posY: null,
+      },
+    });
+
     return this.prisma.project.update({
       where: { id },
       data: { svgSiteplan: base64 },
