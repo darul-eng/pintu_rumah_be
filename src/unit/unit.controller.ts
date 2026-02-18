@@ -74,9 +74,9 @@ export class UnitController {
 
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('MARKETING', 'ADMIN')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update unit status (Admin only)' })
+  @ApiOperation({ summary: 'Update unit status (Marketing/Admin)' })
   @ApiResponse({ status: 200, description: 'Unit status updated' })
   updateStatus(
     @Param('id') id: string,
@@ -99,6 +99,16 @@ export class UnitController {
     @Body() dto: import('./dto/update-unit-position.dto').UpdateUnitPositionDto,
   ) {
     return this.unitService.updatePosition(id, dto);
+  }
+
+  @Patch(':id/position/clear')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MARKETING', 'ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Clear unit coordinates on sitemap (Marketing/Admin)' })
+  @ApiResponse({ status: 200, description: 'Unit position cleared' })
+  clearPosition(@Param('id') id: string) {
+    return this.unitService.clearPosition(id);
   }
 
   @Delete(':id')

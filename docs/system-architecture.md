@@ -3,14 +3,14 @@
 ## 1. Modular Backend (NestJS)
 Arsitektur dibagi menjadi modul-modul independen untuk memudahkan pengembangan solo:
 - Selalu gunakan try catch jika di butuhkan
-- **AuthModule**: JWT, Role-based Access (Buyer vs Marketing).
-- **ProjectModule**: Manajemen data perumahan & upload string SVG Sitemap.
-- **UnitModule**: Manajemen stok per nomor blok (status: Available, Booked, Sold).
+- **AuthModule**: JWT, Role-based Access (Buyer, Marketing, Admin).
+- **ProjectModule**: Manajemen data perumahan & upload gambar denah (JPG/PNG) sebagai basis overlay koordinat.
+- **UnitModule**: Manajemen stok per nomor blok (status: Available, Booked, Sold) + penyimpanan koordinat visual `posX`/`posY` untuk sitemap.
 - **LeadModule**: Sistem enkripsi kontak buyer & fitur "Unlock" berbayar.
 - **WalletModule**: Ledger saldo marketing untuk sistem Pay-per-Lead.
 
 ## 2. Database Schema (Prisma & PostgreSQL)
-- **Mapping Key**: `Unit.blockNumber` (DB) == `id` (SVG tag). Ini adalah kunci pewarnaan dinamis.
+- **Mapping Key**: `Unit.posX` & `Unit.posY` (Float) sebagai koordinat relatif 0.0 s/d 1.0 yang menentukan posisi marker pada gambar denah.
 - **Atomic Transactions**: Proses "Unlock Lead" menggunakan transaksi database agar saldo tidak terpotong jika data gagal dibuka.
 - **Role Control**: Field `isVerified` pada tabel User menentukan akses eksklusif marketing ke fitur update stok.
 

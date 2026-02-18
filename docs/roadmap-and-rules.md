@@ -15,7 +15,7 @@ Anda sedang membantu mengembangkan aplikasi "PintuRumah", sebuah platform proper
 4. **Code-Style Consistency**: 
    - Backend: Gunakan Class-validator dan Swagger di setiap DTO.
    - Frontend: Gunakan Riverpod Providers dan Flutter Platform Widgets (Adaptive).
-5. **No Hallucination on Sitemap**: Karena fitur Sitemap adalah core, AI harus selalu merujuk pada logika: `ID di SVG == Unit.blockNumber di Database`.
+5. **No Hallucination on Sitemap**: Karena fitur Sitemap adalah core, AI harus selalu merujuk pada logika: koordinat relatif `posX` dan `posY` (0.0–1.0) pada gambar denah == posisi visual unit di UI.
 
 ## Phase 1: Foundation (Auth & Profile)
 - Setup NestJS & Prisma.
@@ -23,11 +23,11 @@ Anda sedang membantu mengembangkan aplikasi "PintuRumah", sebuah platform proper
 - Setup Flutter Adaptive Theme & Riverpod.
 
 ## Phase 2: Siteplan Engine (The Core)
-- **BE**: Endpoint `PATCH /projects/:id/svg` untuk simpan raw SVG.
-- **BE**: Logic auto-generate `Unit` berdasarkan ID yang ditemukan di XML SVG.
-- **FE**: Implementasi `xml` parser dan `flutter_svg` dynamic rendering.
-- **FE**: UI Zoomable Siteplan dengan `InteractiveViewer`.
-- **FE/BE**: Implementasi fitur upload file SVG dan logic auto-create Unit berdasarkan ID yang ditemukan di dalam file.
+- **BE**: Endpoint CRUD Project untuk upload gambar denah (JPG/PNG) sebagai dasar overlay koordinat.
+- **BE**: Endpoint `GET /units/sitemap/:projectId` untuk mengirim data unit (status, warna, `posX`, `posY`) ke frontend.
+- **BE**: Endpoint `PATCH /units/:id/position` dan `PATCH /units/:id/position/clear` untuk menyimpan/menghapus koordinat unit (0.0–1.0).
+- **FE**: Implementasi image mapper (layar Pemetaan Unit) untuk menangkap koordinat relatif dari gesture double tap pada denah.
+- **FE**: UI Zoomable Siteplan (Denah Interaktif) dengan `InteractiveViewer` + overlay dots yang dapat diketuk untuk membuka detail unit.
 
 ## Phase 3: Real-time & Interaction
 - **BE**: Setup Socket.io Gateway.

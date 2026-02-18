@@ -247,6 +247,29 @@ export class UnitService {
     return unit;
   }
 
+  async clearPosition(id: string): Promise<Unit> {
+    await this.findOne(id);
+
+    const unit = await this.prisma.unit.update({
+      where: { id },
+      data: {
+        posX: null,
+        posY: null,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    this.unitGateway.broadcastUnitUpdate(unit);
+    return unit;
+  }
+
   private getStatusColor(status: UnitStatus): string {
     switch (status) {
       case 'AVAILABLE':
